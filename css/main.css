@@ -6,7 +6,7 @@ body, html {
 	height: 100%;
 
 
-	font-family: "Maiandra GD",Verdana, Arial, sans-serif;
+	font-family: Verdana, Arial, sans-serif;
 	letter-spacing: -2px;
 	color: #fff;
 	font-size: 75px;
@@ -119,7 +119,7 @@ body, html {
 	position: relative;
 	top :-10px;
 	display: inline-block;
-	font-size: 45px;
+	font-size: 50px;
 	padding-right: 5px;
 	font-weight: 100;
 	margin-right: 10px;
@@ -143,13 +143,20 @@ body, html {
 	top: -35px;
 }
 
+.time .ampm {
+	font-size: 30px;
+	color: #aaa;
+	padding-left: 5px;
+	position: relative;
+	top: 0px;
+}
+
 .forecast-table {
-	float: right;
 	text-align: right;
 	font-size: 20px;
 	line-height: 20px;
 }
-.forecast-table .day, .forecast-table .temp-min, .forecast-table .temp-max  
+.forecast-table .day, .forecast-table .loc
 {
 	width: 50px;
 	text-align: right;
@@ -157,12 +164,26 @@ body, html {
 
 .forecast-table .temp-max 
 {
+	float: right;
 	width: 60px;
+}
+
+.forecast-table .temp-min
+{
+	float: right;
+	text-align: right;
 }
 
 .forecast-table .day
 {
+	float: right;
 	color: #999;
+}
+
+.forecast-table .loc
+{
+	
+	rowspan: 4;
 }
 
 .calendar-table {
@@ -173,6 +194,12 @@ body, html {
 .calendar-table .days {
 	padding-left: 20px;
 	text-align: right;
+}
+
+.top .center-hor .reminder{
+	width: 20px;
+	word-break: break-all;
+	text-align:center;
 }
 
 }
