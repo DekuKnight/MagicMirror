@@ -103,16 +103,16 @@ jQuery(document).ready(function($) {
 
 	(function fetchReminders() 
 	{
-		xmlhttp=new XMLHttpRequest();
-		xmlhttp.open("GET","test.txt",false);
-		xmlhttp.send();
-		xmlDoc=xmlhttp.responseText;
-		tmpArray = xmlDoc.split(',')
-		for(var i in tmpArray){
-			if(reminderList.indexOf(tmpArray[i])==-1){				
-				reminderList.push(tmpArray[i]);
-			}
-		}	
+		$.getJSON('http://192.168.1.8:3000/reminders', function(json, textStatus) {
+			
+			var list = json.list;
+			for(var i in list){
+				if(reminderList.indexOf(list[i])==-1){				
+					reminderList.push(list[i]);
+				}
+			}	
+			
+		});
 		
 		setTimeout(function() {
 			fetchReminders();
