@@ -1,3 +1,5 @@
+var raspiIp = 'http://192.168.1.6:3000/reminders';
+
 jQuery.fn.updateWithText = function(text, speed)
 {
 	var dummy = $('<div/>').html(text);
@@ -79,19 +81,18 @@ jQuery(document).ready(function($) {
 	
 		//Replace with calendar fetching function
 		eventList = [];
-		eventList.push({'description':'Go to Lunch','days':"Friday"});
-		eventList.push({'description':'Relax','days':"Saturday"});
-		eventList.push({'description':'Eat Cake','days':"Saturday"});
+		eventList.push({'description':'Go to Lunch','days':"1"});
+		eventList.push({'description':'Relax','days':"2"});
+		eventList.push({'description':'Eat Cake','days':"3"});
 
 		for (var i in eventList) {
 			var e = eventList[i];
 
 			var row = $('<tr/>').css('opacity',opacity);
+			row.append($('<td/>').html(e.days).addClass('dimmed'));
 			row.append($('<td/>').html(e.description).addClass('description'));
-			row.append($('<td/>').html(e.days).addClass('days dimmed'));
 			table.append(row);
 
-			opacity -= 1 / eventList.length;
 		}
 
 		$('.calendar').updateWithText(table,1000);
@@ -103,7 +104,7 @@ jQuery(document).ready(function($) {
 
 	(function fetchReminders() 
 	{
-		$.getJSON('http://192.168.1.8:3000/reminders', function(json, textStatus) {
+		$.getJSON(raspiIp, function(json, textStatus) {
 			
 			var list = json.list;
 			for(var i in list){
@@ -227,20 +228,26 @@ jQuery(document).ready(function($) {
 			$('.windsun').updateWithText(loc.addClass('forecast-table'),1000)			
 			
 			var forecastTable = $('<table />').addClass('forecast-table');
-			var opacity = 1;
+			var opacity = 1.155;
 			
 			for (var i in forecastData) {
-				var forecast = forecastData[i];
-				var iconClass = iconTable[forecast.icon];
-				var dt = new Date(forecast.timestamp);
-				var row = $('<tr />').css('opacity', opacity);
-				
-				row.append($('<td/>').addClass('day').html(moment.weekdays(dt.getDay())));
-				row.append($('<td/>').addClass('icon-small').addClass('wi').addClass(iconClass));
-				row.append($('<td/>').addClass('temp-max').html(roundVal(forecast.temp_max)+'&deg;'));
-				row.append($('<td/>').addClass('temp-min').html('/'+roundVal(forecast.temp_min)+'&deg;'));
-				
-				forecastTable.append(row);
+				if(opacity <= 1){
+					var forecast = forecastData[i];
+					var iconClass = iconTable[forecast.icon];
+					var dt = new Date(forecast.timestamp);
+					var row = $('<tr />').css('opacity', opacity);
+					
+					if(opacity == 1){
+						row.append($('<td/>').addClass('day').html("Today"));
+					} else{					
+						row.append($('<td/>').addClass('day').html(moment.weekdays(dt.getDay())));
+					}
+					row.append($('<td/>').addClass('icon-small').addClass('wi').addClass(iconClass));
+					row.append($('<td/>').addClass('temp-max').html(roundVal(forecast.temp_max)+'&deg;'));
+					row.append($('<td/>').addClass('temp-min').html('/'+roundVal(forecast.temp_min)+'&deg;'));
+					
+					forecastTable.append(row);
+				}
 				opacity -= 0.155;							
 			}
 
@@ -253,3 +260,79 @@ jQuery(document).ready(function($) {
 	})();
 	
 });
+
+if(annyang){
+	var commands = {
+			'say *term': function(term){
+				$('.conversation').flashMessage(term, 1000, 2000);
+				speak(term);
+			},
+			'who are you': function(){
+				var term = 'I am Kaylee';
+				$('.conversation').flashMessage(term, 1000, 2000);
+				speak(term);
+			},
+			'hide (the) weather': function(){
+				$('.windsun').fadeOut(500);
+				$('.temp').fadeOut(500);
+				$('.forecast').fadeOut(500);
+				speak('Hiding the weather');
+			},
+			'show (the) weather': function(){
+				$('.windsun').fadeIn(500);
+				$('.temp').fadeIn(500);
+				$('.forecast').fadeIn(500);
+				speak('Showing the weather');
+			},
+			'hide (my to do) list': function(){
+				$('.calendar').fadeOut(500);
+				speak('Hiding your to do list');
+			},
+			'show (my to do) list': function(){
+				$('.calendar').fadeIn(500);
+				speak('Showing your to do list');
+			},
+			'hide (the) time': function(){
+				$('.time').fadeOut(500);
+				$('.date').fadeOut(500);
+				speak('Hiding the time');
+			},
+			'show (the) time': function(){
+				$('.time').fadeIn(500);
+				$('.date').fadeIn(500);
+				speak('Showing the time');
+			},
+			'good night (kaylee)': function(){
+				$('.conversation').flashMessage('Goodnight sir', 1000, 2000);
+				speak('Good night sir');
+				$('.time').fadeOut(500);
+				$('.date').fadeOut(500);
+				$('.calendar').fadeOut(500);
+				$('.windsun').fadeOut(500);
+				$('.temp').fadeOut(500);
+				$('.forecast').fadeOut(500);
+			},
+			'good morning (kaylee)': function(){
+				$('.conversation').flashMessage('Good morning sir', 1000, 2000);
+				speak('Good morning sir');
+				$('.time').fadeIn(500);
+				$('.date').fadeIn(500);
+				$('.calendar').fadeIn(500);
+				$('.windsun').fadeIn(500);
+				$('.temp').fadeIn(500);
+				$('.forecast').fadeIn(500);
+			},
+	};
+	
+	var speak = function(term){
+		var msg = new SpeechSynthesisUtterance(term);
+		var voices = window.speechSynthesis.getVoices();
+		msg.voice = voices[2];
+		msg.pitch = 0;
+		window.speechSynthesis.speak(msg);
+	}
+	
+	annyang.addCommands(commands);
+	annyang.debug();
+	annyang.start();
+}
